@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.atguigu.order.mapper.ProductMapper">
+
+    <insert id="insert" parameterType="com.atguigu.order.bean.Product" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO product (name, description, price, stock, category_id, image_url, status)
+        VALUES (#{name}, #{description}, #{price}, #{stock}, #{categoryId}, #{imageUrl}, #{status})
+    </insert>
+
+    <update id="update" parameterType="com.atguigu.order.bean.Product">
+        UPDATE product
+        SET name = #{name}, description = #{description}, price = #{price},
+            stock = #{stock}, category_id = #{categoryId}, image_url = #{imageUrl}, status = #{status}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM product WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" resultType="com.atguigu.order.bean.Product">
+        SELECT id, name, description, price, stock, category_id, image_url, status, create_time
+        FROM product
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectPage" resultType="com.atguigu.order.bean.Product">
+        SELECT id, name, description, price, stock, category_id, image_url, status, create_time
+        FROM product
+        <where>
+            <if test="name != null and name != ''">
+                AND name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="selectCount" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM product
+        <where>
+            <if test="name != null and name != ''">
+                AND name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectByCategory" resultType="com.atguigu.order.bean.Product">
+        SELECT id, name, description, price, stock, category_id, image_url, status, create_time
+        FROM product
+        WHERE category_id = #{categoryId} AND status = 'ON'
+        ORDER BY create_time DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="selectCountByCategory" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM product
+        WHERE category_id = #{categoryId} AND status = 'ON'
+    </select>
+
+    <!-- 扣减库存：WHERE 同时校验 status='ON' 和 stock>=quantity，返回 0 表示扣减失败 -->
+    <update id="decrementStock">
+        UPDATE product
+        SET stock = stock - #{quantity}
+        WHERE id = #{id}
+          AND status = 'ON'
+          AND stock >= #{quantity}
+    </update>
+
+    <!-- 恢复库存：用于取消订单时回退商品库存 -->
+    <update id="incrementStock">
+        UPDATE product
+        SET stock = stock + #{quantity}
+        WHERE id = #{id}
+    </update>
+
+</mapper>

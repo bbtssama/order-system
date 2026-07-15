@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.atguigu.order.mapper.OrderMapper">
+
+    <insert id="insert" parameterType="com.atguigu.order.bean.Order" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO `order` (order_no, user_id, total_amount, status)
+        VALUES (#{orderNo}, #{userId}, #{totalAmount}, #{status})
+    </insert>
+
+    <select id="selectById" resultType="com.atguigu.order.bean.Order">
+        SELECT id, order_no, user_id, total_amount, status, create_time, update_time
+        FROM `order`
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectByOrderNo" resultType="com.atguigu.order.bean.Order">
+        SELECT id, order_no, user_id, total_amount, status, create_time, update_time
+        FROM `order`
+        WHERE order_no = #{orderNo}
+    </select>
+
+    <select id="selectByUserId" resultType="com.atguigu.order.bean.Order">
+        SELECT id, order_no, user_id, total_amount, status, create_time, update_time
+        FROM `order`
+        WHERE user_id = #{userId}
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectPage" resultType="com.atguigu.order.bean.Order">
+        SELECT id, order_no, user_id, total_amount, status, create_time, update_time
+        FROM `order`
+        WHERE user_id = #{userId}
+        ORDER BY create_time DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="selectCount" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM `order` WHERE user_id = #{userId}
+    </select>
+
+    <update id="updateStatus">
+        UPDATE `order` SET status = #{status} WHERE id = #{id}
+    </update>
+
+</mapper>
